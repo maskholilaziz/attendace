@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\OfficeResource\Pages;
-use App\Filament\Resources\OfficeResource\RelationManagers;
-use App\Models\Office;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Office;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
+use Humaidem\FilamentMapPicker\Fields\OSMMap;
+use App\Filament\Resources\OfficeResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\OfficeResource\RelationManagers;
 
 class OfficeResource extends Resource
 {
@@ -26,6 +27,28 @@ class OfficeResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                OSMMap::make('location')
+                    ->label('Location')
+                    ->showMarker()
+                    ->draggable()
+                    ->extraControl([
+                        'zoomDelta'           => 1,
+                        'zoomSnap'            => 0.25,
+                        'wheelPxPerZoomLevel' => 60
+                    ])
+                    ->afterStateHydrated(function (Forms\Get $get, Forms\Set $set, $record) {
+                        $latitude = $record->latitude;
+                        $longitude = $record->longitude;
+
+                        if ($latitude && $longitude) {
+                            $set('location', ['lat' => $latitude, 'lng' => $longitude]);
+                        }
+                    })
+                    ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
+                        $set('latitude', $state['lat']);
+                        $set('longitude', $state['lng']);
+                    })
+                    ->tilesUrl('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
                 Forms\Components\TextInput::make('latitude')
                     ->required()
                     ->numeric(),
