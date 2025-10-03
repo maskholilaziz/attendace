@@ -40,6 +40,7 @@ class ScheduleResource extends Resource
                             ->relationship('office', 'name')
                             ->preload()
                             ->required(),
+                        Forms\Components\Toggle::make('is_wfa'),
                     ]),
             ]);
     }
@@ -47,15 +48,27 @@ class ScheduleResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $is_superadmin = auth()->user()->hasRole('super_admin');
+
+                if (!$is_superadmin) {
+                    $query->where('user_id', auth()->user()->id);
+                }
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
+                    ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('user.email')
+                    ->label('Email')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\BooleanColumn::make('is_wfa')
+                    ->label('WFA'),
                 Tables\Columns\TextColumn::make('shift.name')
-                    ->numeric()
+                    ->description(fn(Schedule $record): string => $record->shift->start_time . ' - ' . $record->shift->end_time)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('office.name')
-                    ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
