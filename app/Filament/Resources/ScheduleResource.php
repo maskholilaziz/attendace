@@ -17,22 +17,30 @@ class ScheduleResource extends Resource
 {
     protected static ?string $model = Schedule::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
+
+    protected static ?string $navigationGroup = 'Manajemen Karyawan';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->searchable()
-                    ->required(),
-                Forms\Components\Select::make('shift_id')
-                    ->relationship('shift', 'name')
-                    ->required(),
-                Forms\Components\Select::make('office_id')
-                    ->relationship('office', 'name')
-                    ->required(),
+                Forms\Components\Section::make('Detail Jadwal')
+                    ->schema([
+                        Forms\Components\Select::make('user_id')
+                            ->relationship('user', 'name')
+                            ->searchable()
+                            ->preload() // Tambahkan preload untuk pengalaman pengguna yang lebih baik
+                            ->required(),
+                        Forms\Components\Select::make('shift_id')
+                            ->relationship('shift', 'name')
+                            ->preload()
+                            ->required(),
+                        Forms\Components\Select::make('office_id')
+                            ->relationship('office', 'name')
+                            ->preload()
+                            ->required(),
+                    ]),
             ]);
     }
 

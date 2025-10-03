@@ -18,17 +18,22 @@ class OfficeResource extends Resource
 {
     protected static ?string $model = Office::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+
+    protected static ?string $navigationGroup = 'Pengaturan';
 
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
+        ->schema([
+            Forms\Components\Section::make('Detail Kantor')
+                ->schema([
+                    Forms\Components\TextInput::make('name')
+                        ->required()
+                        ->maxLength(255)
+                        ->columnSpanFull(), // Field ini akan memakan lebar penuh
                 OSMMap::make('location')
-                    ->label('Location')
+                    ->label('Lokasi')
                     ->showMarker()
                     ->draggable()
                     ->extraControl([
@@ -48,17 +53,17 @@ class OfficeResource extends Resource
                         $set('latitude', $state['lat']);
                         $set('longitude', $state['lng']);
                     })
-                    ->tilesUrl('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
-                Forms\Components\TextInput::make('latitude')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('longitude')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('radius')
-                    ->required()
-                    ->numeric(),
-            ]);
+                    ->tilesUrl('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
+                        ->columnSpanFull(),
+                    Forms\Components\TextInput::make('radius')
+                        ->required()
+                        ->numeric()
+                        ->helperText('Radius dalam satuan meter.'),
+                    // Sembunyikan field latitude dan longitude
+                    Forms\Components\Hidden::make('latitude')->required(),
+                    Forms\Components\Hidden::make('longitude')->required(),
+                ])->columns(2),
+        ]);
     }
 
     public static function table(Table $table): Table
