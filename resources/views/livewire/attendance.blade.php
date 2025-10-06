@@ -9,6 +9,7 @@
                         <p><strong>Kantor: </strong>{{ $schedule->office->name }}</p>
                         <p><strong>Shift: </strong>{{ $schedule->shift->name }} ({{ $schedule->shift->start_time }} -
                             {{ $schedule->shift->end_time }})</p>
+                        <p><strong>Status: </strong>{{ $schedule->is_wfa ? 'WFA' : 'WFO' }}</p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                         <div class="bg-gray-100 p-4 rounded-lg">
@@ -76,16 +77,19 @@
                         component.set('isInRadius', true);
                         component.set('latitude', lat);
                         component.set('longitude', lng);
-                    } else {
-                        alert('You are not in the office radius.');
                     }
                 })
             }
         }
 
         function isInRadius(latitude, longitude, center, radius) {
-            let distance = map.distance([latitude, longitude], center);
-            return distance <= radius;
+            const isWfa = {{ $schedule->is_wfa }};
+            if (isWfa) {
+                return true;
+            } else {
+                let distance = map.distance([latitude, longitude], center);
+                return distance <= radius;
+            }
         }
     </script>
 </div>
