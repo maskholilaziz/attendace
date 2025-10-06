@@ -6,20 +6,61 @@
                     <h2 class="text-2xl font-bold mb-2">Informasi Pegawai</h2>
                     <div class="bg-gray-100 p-4 rounded-lg">
                         <p><strong>Nama Pegawai: </strong>{{ Auth::user()->name }}</p>
-                        <p><strong>Kantor: </strong>Kantor Utama</p>
-                        <p><strong>Shift: </strong>Pagi</p>
+                        <p><strong>Kantor: </strong>{{ $schedule->office->name }}</p>
+                        <p><strong>Shift: </strong>{{ $schedule->shift->name }} ({{ $schedule->shift->start_time }} -
+                            {{ $schedule->shift->end_time }})</p>
                     </div>
                 </div>
                 <div>
                     <h2 class="text-2xl font-bold mb-2">Attendance</h2>
                     <div id="map" class="mb-4 rounded-lg border border-gray-300"></div>
-                    <button type="button" class="px-4 py-2 bg-blue-500 text-white rounded">Tag Location</button>
+                    <button type="button" onclick="getLocation()" class="px-4 py-2 bg-blue-500 text-white rounded">Tag
+                        Location</button>
+                    <button type="button"  class="px-4 py-2 bg-green-500 text-white rounded">Submit Attendance</button>
                 </div>
             </div>
         </div>
     </div>
     <script>
-        const map = L.map('map').setView([51.505, -0.09], 13);
+        const office = [{{ $schedule->office->latitude }}, {{ $schedule->office->longitude }}];
+        const radius = {{ $schedule->office->radius }};
+        let marker;
+
+        const map = L.map('map').setView(office, 20);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        const circle = L.circle(office, {
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.5,
+            radius: radius
+        }).addTo(map);
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    if (marker) {
+                        map.removeLayer(marker);
+                    }
+
+                    marker = L.marker([lat, lng]).addTo(map);
+                    map.setView([lat, lng], 20);
+
+                    if (isInRadius(lat, lng, office, radius)) {
+                        alert('You are in the office radius.');
+                    } else {
+                        alert('You are not in the office radius.');
+                    }
+                })
+            }
+        }
+
+        function isInRadius(latitude, longitude, center, radius) {
+            let distance = map.distance([latitude, longitude], center);
+            return distance <= radius;
+        }
     </script>
 </div>
