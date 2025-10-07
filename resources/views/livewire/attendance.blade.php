@@ -6,9 +6,9 @@
                     <h2 class="text-2xl font-bold mb-2">Informasi Pegawai</h2>
                     <div class="bg-gray-100 p-4 rounded-lg">
                         <p><strong>Nama Pegawai: </strong>{{ Auth::user()->name }}</p>
-                        <p><strong>Kantor: </strong>{{ $schedule->office->name }}</p>
-                        <p><strong>Shift: </strong>{{ $schedule->shift->name }} ({{ $schedule->shift->start_time }} -
-                            {{ $schedule->shift->end_time }})</p>
+                        <p><strong>Kantor: </strong>{{ $schedule->office->name ?? '-' }}</p>
+                        <p><strong>Shift: </strong>{{ $schedule->shift->name ?? '-' }}
+                            ({{ $schedule->shift->start_time ?? '-' }} - {{ $schedule->shift->end_time ?? '-' }})</p>
                         <p><strong>Status: </strong>{{ $schedule->is_wfa ? 'WFA' : 'WFO' }}</p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
@@ -42,8 +42,8 @@
         let map;
         let lat;
         let lng;
-        const office = [{{ $schedule->office->latitude }}, {{ $schedule->office->longitude }}];
-        const radius = {{ $schedule->office->radius }};
+        const office = [{{ $schedule->office->latitude ?? 0 }}, {{ $schedule->office->longitude ?? 0 }}];
+        const radius = {{ $schedule->office->radius ?? 0 }};
         let component;
         let marker;
 
@@ -83,7 +83,7 @@
         }
 
         function isInRadius(latitude, longitude, center, radius) {
-            const isWfa = {{ $schedule->is_wfa }};
+            const isWfa = {{ $schedule->is_wfa ?? 0 }};
             if (isWfa) {
                 return true;
             } else {

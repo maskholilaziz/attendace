@@ -25,45 +25,45 @@ class OfficeResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            Forms\Components\Section::make('Detail Kantor')
-                ->schema([
-                    Forms\Components\TextInput::make('name')
-                        ->required()
-                        ->maxLength(255)
-                        ->columnSpanFull(), // Field ini akan memakan lebar penuh
-                OSMMap::make('location')
-                    ->label('Lokasi')
-                    ->showMarker()
-                    ->draggable()
-                    ->extraControl([
-                        'zoomDelta'           => 1,
-                        'zoomSnap'            => 0.25,
-                        'wheelPxPerZoomLevel' => 60
-                    ])
-                    ->afterStateHydrated(function (Forms\Get $get, Forms\Set $set, $record) {
-                        $latitude = $record->latitude;
-                        $longitude = $record->longitude;
+            ->schema([
+                Forms\Components\Section::make('Detail Kantor')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull(), // Field ini akan memakan lebar penuh
+                        OSMMap::make('location')
+                            ->label('Lokasi')
+                            ->showMarker()
+                            ->draggable()
+                            ->extraControl([
+                                'zoomDelta'           => 1,
+                                'zoomSnap'            => 0.25,
+                                'wheelPxPerZoomLevel' => 60
+                            ])
+                            ->afterStateHydrated(function (Forms\Get $get, Forms\Set $set, $record) {
+                                $latitude = $record->latitude ?? 0;
+                                $longitude = $record->longitude ?? 0;
 
-                        if ($latitude && $longitude) {
-                            $set('location', ['lat' => $latitude, 'lng' => $longitude]);
-                        }
-                    })
-                    ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
-                        $set('latitude', $state['lat']);
-                        $set('longitude', $state['lng']);
-                    })
-                    ->tilesUrl('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
-                        ->columnSpanFull(),
-                    Forms\Components\TextInput::make('radius')
-                        ->required()
-                        ->numeric()
-                        ->helperText('Radius dalam satuan meter.'),
-                    // Sembunyikan field latitude dan longitude
-                    Forms\Components\Hidden::make('latitude')->required(),
-                    Forms\Components\Hidden::make('longitude')->required(),
-                ])->columns(2),
-        ]);
+                                if ($latitude && $longitude) {
+                                    $set('location', ['lat' => $latitude, 'lng' => $longitude]);
+                                }
+                            })
+                            ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
+                                $set('latitude', $state['lat']);
+                                $set('longitude', $state['lng']);
+                            })
+                            ->tilesUrl('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
+                            ->columnSpanFull(),
+                        Forms\Components\TextInput::make('radius')
+                            ->required()
+                            ->numeric()
+                            ->helperText('Radius dalam satuan meter.'),
+                        // Sembunyikan field latitude dan longitude
+                        Forms\Components\Hidden::make('latitude')->required(),
+                        Forms\Components\Hidden::make('longitude')->required(),
+                    ])->columns(2),
+            ]);
     }
 
     public static function table(Table $table): Table
