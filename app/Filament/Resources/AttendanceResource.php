@@ -85,6 +85,16 @@ class AttendanceResource extends Resource
                     ->label('Pegawai')
                     ->searchable() // Tambahkan fitur pencarian berdasarkan nama pegawai
                     ->sortable(),
+                Tables\Columns\TextColumn::make('is_late')
+                    ->label('Status')
+                    ->badge()
+                    ->getStateUsing(function (Attendance $record) {
+                        return $record->isLate() ? 'Terlambat' : 'Tepat Waktu';
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'Terlambat' => 'danger',
+                        'Tepat Waktu' => 'success',
+                    }),
                 Tables\Columns\TextColumn::make('start_time')
                     ->label('Clock In')
                     ->time('H:i:s') // Format sebagai waktu
@@ -95,6 +105,7 @@ class AttendanceResource extends Resource
                     ->sortable()
                     ->placeholder('Belum Clock Out'), // Teks jika data kosong
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 // Tambahkan filter berdasarkan rentang tanggal
                 Filter::make('created_at')

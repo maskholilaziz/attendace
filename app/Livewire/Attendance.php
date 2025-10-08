@@ -58,10 +58,7 @@ class Attendance extends Component
                 ]);
             }
 
-            return redirect()->route('attendance', [
-                'schedule' => $schedule,
-                'isInRadius' => false
-            ]);
+            return redirect('admin/attendances');
         }
     }
 }
