@@ -104,6 +104,10 @@ class AttendanceResource extends Resource
                     ->time('H:i:s')
                     ->sortable()
                     ->placeholder('Belum Clock Out'), // Teks jika data kosong
+                Tables\Columns\TextColumn::make('work_duration')
+                    ->getStateUsing(function (Attendance $record) {
+                        return $record->workDuration();
+                    }),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
