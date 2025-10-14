@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
@@ -38,6 +39,19 @@ class AttendanceController extends Controller
                 'this_month' => $attendanceThisMonth
             ],
             'message' => 'Success get attendance today'
+        ]);
+    }
+
+    public function getSchedule()
+    {
+        $schedule = Schedule::with(['office', 'shift'])
+            ->where('user_id', auth()->user()->id)
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'data' => $schedule,
+            'message' => 'Success get schedule'
         ]);
     }
 }

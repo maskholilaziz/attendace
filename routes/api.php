@@ -10,6 +10,7 @@ Route::prefix('v1')->group(function () {
 
     Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('get-attendance-today', [AttendanceController::class, 'getAttendanceToday']);
+        Route::get('get-schedule', [AttendanceController::class, 'getSchedule']);
     });
 });
 
