@@ -71,7 +71,7 @@ class AttendanceController extends Controller
                 'success' => false,
                 'data' => $validator->errors(),
                 'message' => 'Validation Error',
-            ]);
+            ], 422);
         }
 
         $userId = auth()->id();
@@ -115,6 +115,45 @@ class AttendanceController extends Controller
             'success' => true,
             'data' => $attendance,
             'message' => 'Success store attendance',
+        ]);
+    }
+
+    function getAttendanceByMonthYear($month, $year)
+    {
+        $validator = Validator::make([
+            'month' => $month,
+            'year' => $year,
+        ], [
+            'month' => 'required|integer|between:1,12',
+            'year' => 'required|integer|min:2025|max:' . date('Y'),
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'data' => $validator->errors(),
+                'message' => 'Validation Error',
+            ], 422);
+        }
+
+        $userId = auth()->id();
+        $attendanceList = Attendance::select('start_time', 'end_time', 'created_at')
+            ->where('user_id', $userId)
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->get()
+            ->map(function ($attendance) {
+                return [
+                    'start_time' => $attendance->start_time,
+                    'end_time' => $attendance->end_time,
+                    'date' => $attendance->created_at->toDateString(),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $attendanceList,
+            'message' => 'Success get attendance by month and year',
         ]);
     }
 }
