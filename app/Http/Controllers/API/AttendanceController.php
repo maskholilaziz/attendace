@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\Attendance;
+use Carbon\Carbon;
 use App\Models\Schedule;
+use App\Models\Attendance;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
 {
@@ -52,6 +54,67 @@ class AttendanceController extends Controller
             'success' => true,
             'data' => $schedule,
             'message' => 'Success get schedule'
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $payload = $request->only(['latitude', 'longitude']);
+
+        $validator = Validator::make($payload, [
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'data' => $validator->errors(),
+                'message' => 'Validation Error',
+            ]);
+        }
+
+        $userId = auth()->id();
+        $schedule = Schedule::where('user_id', $userId)->first();
+
+        if (!$schedule) {
+            return response()->json([
+                'success' => false,
+                'data' => null,
+                'message' => 'Schedule Not Found',
+            ]);
+        }
+
+        $today = now()->toDateString();
+        $attendance = Attendance::where('user_id', $userId)
+            ->whereDate('created_at', $today)
+            ->first();
+        $timestamp = now()->toTimeString();
+
+        if (!$attendance) {
+            $attendance = Attendance::create([
+                'user_id' => $userId,
+                'schedule_latitude' => $schedule->office->latitude,
+                'schedule_longitude' => $schedule->office->longitude,
+                'schedule_start_time' => $schedule->shift->start_time,
+                'schedule_end_time' => $schedule->shift->end_time,
+                'start_latitude' => $payload['latitude'],
+                'start_longitude' => $payload['longitude'],
+                'start_time' => $timestamp,
+                'end_time' => $timestamp,
+            ]);
+        } else {
+            $attendance->update([
+                'end_latitude' => $payload['latitude'],
+                'end_longitude' => $payload['longitude'],
+                'end_time' => $timestamp,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $attendance,
+            'message' => 'Success store attendance',
         ]);
     }
 }
