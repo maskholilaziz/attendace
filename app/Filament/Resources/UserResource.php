@@ -41,6 +41,8 @@ class UserResource extends Resource
                             ->dehydrateStateUsing(fn($state) => Hash::make($state))
                             ->dehydrated(fn($state) => filled($state))
                             ->required(fn(string $context): bool => $context === 'create'),
+                        Forms\Components\Toggle::make('is_banned')
+                            ->required(),
                     ])->columns(2), // Atur layout menjadi 2 kolom
 
                 Forms\Components\Section::make('Hak Akses dan Verifikasi')
@@ -63,6 +65,7 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
+                Tables\Columns\ToggleColumn::make('is_banned'),
                 Tables\Columns\TextColumn::make('roles.name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email_verified_at')

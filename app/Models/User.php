@@ -23,6 +23,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_banned',
+    ];
+
+    protected $casts = [
+        'is_banned' => 'boolean',
     ];
 
     /**

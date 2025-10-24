@@ -17,6 +17,10 @@ class Schedule extends Model
         'is_wfa',
     ];
 
+    protected $casts = [
+        'is_wfa' => 'boolean',
+    ];
+
     /**
      * Get the user that owns the Schedule
      *
